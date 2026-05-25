@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVault - Rede Social de Games</title>
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16162b;
+            --gold: #f59e0b;
+            --playing: #10b981;
+            --completed: #3b82f6;
+            --dropped: #ef4444;
+            --text-muted: #9ca3af;
+            --border-subtle: #2a2a45;
+        }
+
+        * {
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1030 40%, #0f0f1a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e2e8f0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Partículas de fundo sutis */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 60%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+            opacity: 0.8;
+        }
+
+        /* Container principal acima das partículas */
+        #appSection,
+        #authSection {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navbar customizada */
+        .navbar-custom {
+            background: rgba(22, 22, 43, 0.85) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            padding: 0.6rem 0;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #c084fc, #8b5cf6, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-brand-custom i {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #c084fc, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link-custom {
+            color: #cbd5e1 !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.95rem;
+        }
+
+        .nav-link-custom:hover,
+        .nav-link-custom.active {
+            color: #fff !important;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .nav-link-custom.active {
+            background: rgba(139, 92, 246, 0.3);
+            font-weight: 600;
+        }
+
+        /* Botão de nova publicação */
+        .btn-new-post {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.55rem 1.3rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn-new-post:hover {
+            background: linear-gradient(135deg, #9b6dff, #7570f0);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        .btn-new-post:active {
+            transform: scale(0.96);
+        }
+
+        /* Cards de publicação */
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.4rem;
+            margin-bottom: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .post-card.status-playing::before {
+            background: var(--playing);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+        .post-card.status-completed::before {
+            background: var(--completed);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+        .post-card.status-dropped::before {
+            background: var(--dropped);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .post-card:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            transform: translateY(-3px);
+        }
+
+        /* Avatar */
+        .avatar-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 2px solid transparent;
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .avatar-circle:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.08);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .avatar-circle.avatar-sm {
+            width: 34px;
+            height: 34px;
+            font-size: 0.85rem;
+        }
+        .avatar-circle.avatar-lg {
+            width: 80px;
+            height: 80px;
+            font-size: 2rem;
+        }
+
+        /* Nome de usuário clicável */
+        .username-link {
+            cursor: pointer;
+            font-weight: 600;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .username-link:hover {
+            color: #c084fc;
+            text-decoration: underline;
+        }
+
+        /* Badges de status */
+        .badge-status {
+            font-size: 0.8rem;
+            padding: 0.35em 0.75em;
+            border-radius: 20px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .badge-playing {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-completed {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .badge-dropped {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Estrelas */
+        .stars-display {
+            color: var(--gold);
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+        .stars-display .bi-star-fill {
+            filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.5));
+        }
+
+        .stars-input {
+            display: flex;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 1.8rem;
+            user-select: none;
+        }
+        .stars-input .star-item {
+            color: #4b5563;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .stars-input .star-item.active {
+            color: var(--gold);
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+        }
+        .stars-input .star-item:hover {
+            transform: scale(1.2);
+        }
+
+        /* Jogo nome */
+        .game-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #f1f5f9;
+            letter-spacing: -0.2px;
+        }
+
+        /* Observação */
+        .observation-text {
+            color: #a5b4c7;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border-left: 3px solid var(--border-subtle);
+            margin-top: 0.6rem;
+            font-style: italic;
+        }
+
+        /* Data relativa */
+        .time-ago {
+            color: #6b7280;
+            font-size: 0.78rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Auth Container */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .auth-logo {
+            font-weight: 800;
+            font-size: 2.2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #c084fc, #8b5cf6, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.3rem;
+            position: relative;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .form-control-custom {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 0.7rem 1rem;
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .form-control-custom:focus {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+            color: #fff;
+        }
+
+        .btn-auth {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.7rem;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+        .btn-auth:hover {
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.5);
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        .auth-toggle {
+            color: #c084fc;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .auth-toggle:hover {
+            color: #ddd6fe;
+            text-decoration: underline;
+        }
+
+        /* Perfil Header */
+        .profile-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #6366f1, #c084fc);
+            border-radius: 0 0 20px 20px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            min-width: 70px;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .stat-item:hover {
+            border-color: var(--border-subtle);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .stat-number {
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: #f1f5f9;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-item.stat-playing .stat-number {
+            color: #34d399;
+        }
+        .stat-item.stat-completed .stat-number {
+            color: #60a5fa;
+        }
+        .stat-item.stat-dropped .stat-number {
+            color: #f87171;
+        }
+
+        /* Botões de ação nos cards */
+        .btn-action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border-subtle);
+            background: transparent;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        .btn-action-icon:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .btn-action-icon.btn-edit:hover {
+            border-color: #60a5fa;
+            color: #60a5fa;
+            background: rgba(59, 130, 246, 0.15);
+        }
+        .btn-action-icon.btn-delete:hover {
+            border-color: #f87171;
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+        }
+        .empty-state i {
+            font-size: 4rem;
+            color: #374151;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .empty-state h4 {
+            color: #9ca3af;
+            font-weight: 600;
+        }
+        .empty-state p {
+            color: #6b7280;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Modal custom */
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        }
+        .modal-header {
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1.2rem 1.5rem;
+        }
+        .modal-footer {
+            border-top: 1px solid var(--border-subtle);
+            padding: 1rem 1.5rem;
+        }
+        .modal-title {
+            font-weight: 700;
+        }
+
+        /* Botão flutuante mobile */
+        .fab-mobile {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1050;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fab-mobile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.7);
+        }
+        @media (max-width: 768px) {
+            .fab-mobile {
+                display: flex;
+            }
+            .btn-new-post-desktop {
+                display: none !important;
+            }
+            .auth-card {
+                padding: 2rem 1.4rem;
+                margin: 0 0.5rem;
+            }
+            .profile-stats {
+                gap: 0.6rem;
+            }
+            .stat-item {
+                padding: 0.6rem 0.8rem;
+                min-width: 55px;
+            }
+            .stat-number {
+                font-size: 1.3rem;
+            }
+            .post-card {
+                padding: 1rem;
+            }
+        }
+        @media (min-width: 769px) {
+            .fab-mobile {
+                display: none !important;
+            }
+            .btn-new-post-desktop {
+                display: flex !important;
+            }
+        }
+
+        /* Toast custom */
+        .toast-container {
+            z-index: 9999;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a55;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a5a7a;
+        }
+
+        /* Animação de fade */
+        .fade-in {
+            animation: fadeInUp 0.4s ease forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #f1f5f9;
+        }
+        .section-title i {
+            color: #8b5cf6;
+        }
+
+        select.form-control-custom {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== TOAST CONTAINER ==================== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ==================== SEÇÃO DE AUTENTICAÇÃO ==================== -->
+    <div id="authSection" class="auth-container">
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="auth-logo">
+                <i class="bi bi-controller"></i> GameVault
+            </div>
+            <p class="auth-subtitle">Sua rede social de classificação de jogos</p>
+
+            <!-- Formulário de Login -->
+            <form id="loginForm" novalidate>
+                <h5 class="text-center mb-3 fw-semibold">🔐 Entrar</h5>
+                <div class="mb-3">
+                    <label for="loginUsername" class="form-label fw-semibold">Nome de usuário</label>
+                    <input type="text" class="form-control form-control-custom" id="loginUsername"
+                    placeholder="Digite seu nome de usuário" required minlength="3" autocomplete="username">
+                    <div class="invalid-feedback">Mínimo 3 caracteres.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="loginPassword" class="form-label fw-semibold">Senha</label>
+                    <input type="password" class="form-control form-control-custom" id="loginPassword"
+                    placeholder="Digite sua senha" required minlength="4" autocomplete="current-password">
+                    <div class="invalid-feedback">Mínimo 4 caracteres.</div>
+                </div>
+                <div class="mb-3" id="loginError" style="display:none;">
+                    <div class="alert alert-danger py-2 px-3 mb-0 rounded-3 small"></div>
+                </div>
+                <button type="submit" class="btn btn-auth mb-3">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Entrar
+                </button>
+                <p class="text-center mb-0" style="color:#9ca3af; font-size:0.9rem;">
+                    Não tem conta?
+                    <span class="auth-toggle" id="showRegisterBtn">Cadastre-se aqui</span>
+                </p>
+            </form>
+
+            <!-- Formulário de Cadastro -->
+            <form id="registerForm" novalidate style="display:none;">
+                <h5 class="text-center mb-3 fw-semibold">📝 Criar Conta</h5>
+                <div class="mb-3">
+                    <label for="registerUsername" class="form-label fw-semibold">Nome de usuário</label>
+                    <input type="text" class="form-control form-control-custom" id="registerUsername"
+                    placeholder="Escolha um nome de usuário" required minlength="3" autocomplete="username">
+                    <div class="invalid-feedback">Mínimo 3 caracteres.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="registerPassword" class="form-label fw-semibold">Senha</label>
+                    <input type="password" class="form-control form-control-custom" id="registerPassword"
+                    placeholder="Crie uma senha" required minlength="4" autocomplete="new-password">
+                    <div class="invalid-feedback">Mínimo 4 caracteres.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="registerConfirmPassword" class="form-label fw-semibold">Confirmar Senha</label>
+                    <input type="password" class="form-control form-control-custom" id="registerConfirmPassword"
+                    placeholder="Repita a senha" required minlength="4" autocomplete="new-password">
+                    <div class="invalid-feedback">As senhas não coincidem.</div>
+                </div>
+                <div class="mb-3" id="registerError" style="display:none;">
+                    <div class="alert alert-danger py-2 px-3 mb-0 rounded-3 small"></div>
+                </div>
+                <button type="submit" class="btn btn-auth mb-3">
+                    <i class="bi bi-person-plus me-2"></i> Criar Conta
+                </button>
+                <p class="text-center mb-0" style="color:#9ca3af; font-size:0.9rem;">
+                    Já tem conta?
+                    <span class="auth-toggle" id="showLoginBtn">Faça login</span>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== SEÇÃO DO APLICATIVO (LOGADO) ==================== -->
+    <div id="appSection" style="display:none;">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <div class="container">
+                <a class="navbar-brand navbar-brand-custom" href="#" id="brandHome">
+                    <i class="bi bi-controller"></i> GameVault
+                </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                aria-label="Toggle navigation" style="color:#cbd5e1;">
+                <i class="bi bi-list" style="font-size:1.5rem;"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="navLinks">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom active" href="#" data-view="feed" id="navFeed">
+                            <i class="bi bi-house-door"></i> Feed
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#" data-view="myProfile" id="navMyProfile">
+                            <i class="bi bi-person"></i> Meu Perfil
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-new-post btn-new-post-desktop" id="btnNewPostDesktop"
+                    title="Nova Publicação">
+                    <i class="bi bi-plus-lg"></i> Publicar Jogo
+                </button>
+                <span class="text-muted d-none d-lg-block mx-2">|</span>
+                <span class="d-flex align-items-center gap-2 cursor-pointer" id="currentUserDisplay"
+                style="cursor:default;">
+                <span id="currentUserAvatar" class="avatar-circle avatar-sm"></span>
+                <span id="currentUserName" class="fw-semibold d-none d-md-inline" style="color:#e2e8f0;"></span>
+            </span>
+            <button class="btn btn-outline-light btn-sm rounded-pill px-3 ms-2" id="btnLogout"
+            title="Sair">
+            <i class="bi bi-box-arrow-right"></i> <span class="d-none d-md-inline">Sair</span>
+        </button>
+    </div>
+</div>
+</div>
+</nav>
+
+<!-- Conteúdo principal -->
+<div class="container py-4" id="mainContent">
+    <!-- Feed View -->
+    <div id="feedView" class="fade-in">
+        <h3 class="section-title"><i class="bi bi-house-door-fill"></i> Feed de Publicações</h3>
+        <div id="feedPostsContainer">
+            <!-- Posts renderizados dinamicamente -->
+        </div>
+    </div>
+
+    <!-- Meu Perfil View -->
+    <div id="myProfileView" class="fade-in" style="display:none;">
+        <div id="myProfileHeader">
+            <!-- Header do perfil renderizado dinamicamente -->
+        </div>
+        <h4 class="section-title mt-4"><i class="bi bi-collection"></i> Minhas Publicações</h4>
+        <div id="myProfilePostsContainer">
+            <!-- Posts do usuário logado -->
+        </div>
+    </div>
+
+    <!-- Perfil Público View -->
+    <div id="publicProfileView" class="fade-in" style="display:none;">
+        <button class="btn btn-outline-light btn-sm rounded-pill mb-3" id="btnBackToFeed">
+            <i class="bi bi-arrow-left me-1"></i> Voltar ao Feed
+        </button>
+        <div id="publicProfileHeader">
+            <!-- Header do perfil público renderizado dinamicamente -->
+        </div>
+        <h4 class="section-title mt-4"><i class="bi bi-collection"></i> Publicações</h4>
+        <div id="publicProfilePostsContainer">
+            <!-- Posts do usuário público -->
+        </div>
+    </div>
+</div>
+
+<!-- FAB Mobile -->
+<button class="fab-mobile" id="fabNewPost" title="Nova Publicação">
+    <i class="bi bi-plus-lg"></i>
+</button>
+</div>
+
+<!-- ==================== MODAIS ==================== -->
+
+<!-- Modal: Nova Publicação -->
+<div class="modal fade" id="newPostModal" tabindex="-1" aria-labelledby="newPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newPostModalLabel">
+                    <i class="bi bi-plus-circle me-2" style="color:#8b5cf6;"></i>Nova Publicação
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form id="newPostForm" novalidate>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newGameName" class="form-label fw-semibold">🎮 Nome do Jogo</label>
+                        <input type="text" class="form-control form-control-custom" id="newGameName"
+                        placeholder="Ex: The Legend of Zelda" required minlength="1">
+                        <div class="invalid-feedback">Informe o nome do jogo.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label fw-semibold">📌 Status de Jogabilidade</label>
+                        <select class="form-control form-control-custom" id="newStatus" required>
+                            <option value="" disabled selected>Selecione o status...</option>
+                            <option value="playing">🟢 Jogando</option>
+                            <option value="completed">✅ Zerou</option>
+                            <option value="dropped">🔴 Parou no meio</option>
+                        </select>
+                        <div class="invalid-feedback">Selecione um status.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">⭐ Classificação (Nota)</label>
+                        <div class="stars-input" id="newRatingStars">
+                            <span class="star-item" data-value="1"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="2"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="3"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="4"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="5"><i class="bi bi-star-fill"></i></span>
+                        </div>
+                        <input type="hidden" id="newRatingValue" value="0" required>
+                        <div class="invalid-feedback-rating text-danger small mt-1" style="display:none;">
+                            Selecione uma nota.
+                        </div>
+                        <small class="text-muted" id="newRatingText">Clique nas estrelas para avaliar</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newObservation" class="form-label fw-semibold">💬 Observação</label>
+                        <textarea class="form-control form-control-custom" id="newObservation" rows="3"
+                        placeholder="Sua opinião, comentário ou review pessoal..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-auth rounded-pill px-4" style="width:auto;">
+                        <i class="bi bi-send me-2"></i> Publicar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Editar Publicação -->
+<div class="modal fade" id="editPostModal" tabindex="-1" aria-labelledby="editPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPostModalLabel">
+                    <i class="bi bi-pencil-square me-2" style="color:#60a5fa;"></i>Editar Publicação
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form id="editPostForm" novalidate>
+                <input type="hidden" id="editPostId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editGameName" class="form-label fw-semibold">🎮 Nome do Jogo</label>
+                        <input type="text" class="form-control form-control-custom" id="editGameName" required>
+                        <div class="invalid-feedback">Informe o nome do jogo.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editStatus" class="form-label fw-semibold">📌 Status de Jogabilidade</label>
+                        <select class="form-control form-control-custom" id="editStatus" required>
+                            <option value="playing">🟢 Jogando</option>
+                            <option value="completed">✅ Zerou</option>
+                            <option value="dropped">🔴 Parou no meio</option>
+                        </select>
+                        <div class="invalid-feedback">Selecione um status.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">⭐ Classificação (Nota)</label>
+                        <div class="stars-input" id="editRatingStars">
+                            <span class="star-item" data-value="1"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="2"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="3"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="4"><i class="bi bi-star-fill"></i></span>
+                            <span class="star-item" data-value="5"><i class="bi bi-star-fill"></i></span>
+                        </div>
+                        <input type="hidden" id="editRatingValue" value="0" required>
+                        <div class="invalid-feedback-rating text-danger small mt-1" style="display:none;">
+                            Selecione uma nota.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editObservation" class="form-label fw-semibold">💬 Observação</label>
+                        <textarea class="form-control form-control-custom" id="editObservation" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-auth rounded-pill px-4" style="width:auto; background:linear-gradient(135deg, #3b82f6, #2563eb);">
+                        <i class="bi bi-check-lg me-2"></i> Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirmar Exclusão -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+        <div class="modal-header border-0">
+            <h5 class="modal-title" id="deleteConfirmModalLabel">
+                <i class="bi bi-exclamation-triangle me-2" style="color:#f87171;"></i>Confirmar Exclusão
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body text-center">
+            <p class="mb-2">Tem certeza que deseja excluir esta publicação?</p>
+            <p class="fw-semibold text-warning" id="deleteGameName"></p>
+            <small class="text-muted">Esta ação não pode ser desfeita.</small>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+            <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">
+                Cancelar
+            </button>
+            <button type="button" class="btn btn-danger rounded-pill px-4" id="btnConfirmDelete">
+                <i class="bi bi-trash me-2"></i> Excluir
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+</script>
+
+<script>
+    (function() {
+        // ==================== CONSTANTES ====================
+        const STORAGE_KEYS = {
+            users: 'gameSocial_users',
+            posts: 'gameSocial_posts',
+            currentUser: 'gameSocial_currentUser'
+        };
+
+        const STATUS_MAP = {
+            'playing': { label: '🟢 Jogando', badgeClass: 'badge-playing', cardClass: 'status-playing',
+                icon: 'bi-play-circle-fill' },
+            'completed': { label: '✅ Zerou', badgeClass: 'badge-completed', cardClass: 'status-completed',
+                icon: 'bi-trophy-fill' },
+            'dropped': { label: '🔴 Parou no meio', badgeClass: 'badge-dropped', cardClass: 'status-dropped',
+                icon: 'bi-stop-circle-fill' }
+        };
+
+        // ==================== ESTADO GLOBAL ====================
+        let currentUser = null;
+        let allPosts = [];
+        let allUsers = [];
+        let publicProfileUserId = null;
+        let postIdToDelete = null;
+
+        // Referências aos modais Bootstrap
+        let newPostModalInstance, editPostModalInstance, deleteConfirmModalInstance;
+
+        // ==================== INICIALIZAÇÃO ====================
+        function init() {
+            loadDataFromStorage();
+            checkAuthState();
+            setupEventListeners();
+            initBootstrapModals();
+        }
+
+        function loadDataFromStorage() {
+            const usersJson = localStorage.getItem(STORAGE_KEYS.users);
+            const postsJson = localStorage.getItem(STORAGE_KEYS.posts);
+            const currentUserJson = localStorage.getItem(STORAGE_KEYS.currentUser);
+
+            allUsers = usersJson ? JSON.parse(usersJson) : [];
+            allPosts = postsJson ? JSON.parse(postsJson) : [];
+            currentUser = currentUserJson ? JSON.parse(currentUserJson) : null;
+        }
+
+        function saveUsersToStorage() {
+            localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(allUsers));
+        }
+
+        function savePostsToStorage() {
+            localStorage.setItem(STORAGE_KEYS.posts, JSON.stringify(allPosts));
+        }
+
+        function saveCurrentUserToStorage() {
+            if (currentUser) {
+                localStorage.setItem(STORAGE_KEYS.currentUser, JSON.stringify(currentUser));
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.currentUser);
+            }
+        }
+
+        function initBootstrapModals() {
+            newPostModalInstance = new bootstrap.Modal(document.getElementById('newPostModal'));
+            editPostModalInstance = new bootstrap.Modal(document.getElementById('editPostModal'));
+            deleteConfirmModalInstance = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        }
+
+        function checkAuthState() {
+            if (currentUser) {
+                showAppSection();
+                updateNavbarUserInfo();
+                navigateTo('feed');
+            } else {
+                showAuthSection();
+            }
+        }
+
+        // ==================== NAVEGAÇÃO ====================
+        function showAuthSection() {
+            document.getElementById('authSection').style.display = 'flex';
+            document.getElementById('appSection').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            clearAuthForms();
+            clearAuthErrors();
+        }
+
+        function showAppSection() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('appSection').style.display = 'block';
+        }
+
+        function navigateTo(viewName) {
+            // Esconder todas as views
+            document.getElementById('feedView').style.display = 'none';
+            document.getElementById('myProfileView').style.display = 'none';
+            document.getElementById('publicProfileView').style.display = 'none';
+
+            // Remover active de todos os links
+            document.querySelectorAll('#navLinks .nav-link-custom').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Mostrar a view selecionada
+            switch (viewName) {
+                case 'feed':
+                    document.getElementById('feedView').style.display = 'block';
+                    document.getElementById('navFeed').classList.add('active');
+                    renderFeed();
+                    break;
+                case 'myProfile':
+                    document.getElementById('myProfileView').style.display = 'block';
+                    document.getElementById('navMyProfile').classList.add('active');
+                    renderMyProfile();
+                    break;
+                case 'publicProfile':
+                    document.getElementById('publicProfileView').style.display = 'block';
+                    renderPublicProfile();
+                    break;
+                default:
+                    document.getElementById('feedView').style.display = 'block';
+                    document.getElementById('navFeed').classList.add('active');
+                    renderFeed();
+            }
+            // Scroll suave para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==================== AUTENTICAÇÃO ====================
+        function registerUser(username, password) {
+            // Verificar se usuário já existe
+            const existingUser = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+            if (existingUser) {
+                showAuthError('register', 'Este nome de usuário já está em uso. Escolha outro.');
+                return false;
+            }
+
+            const newUser = {
+                id: generateId(),
+                username: username.trim(),
+                password: password, // Em produção, usar hash
+                createdAt: new Date().toISOString()
+            };
+
+            allUsers.push(newUser);
+            saveUsersToStorage();
+            return true;
+        }
+
+        function loginUser(username, password) {
+            const user = allUsers.find(u =>
+                u.username.toLowerCase() === username.toLowerCase() && u.password === password
+            );
+            if (!user) {
+                showAuthError('login', 'Nome de usuário ou senha incorretos.');
+                return false;
+            }
+            currentUser = user;
+            saveCurrentUserToStorage();
+            return true;
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            saveCurrentUserToStorage();
+            publicProfileUserId = null;
+            postIdToDelete = null;
+            showAuthSection();
+            showToast('Você saiu da conta.', 'info');
+        }
+
+        // ==================== PUBLICAÇÕES (CRUD) ====================
+        function createPost(gameName, status, rating, observation) {
+            const newPost = {
+                id: generateId(),
+                userId: currentUser.id,
+                username: currentUser.username,
+                gameName: gameName.trim(),
+                status: status,
+                rating: parseInt(rating),
+                observation: observation.trim(),
+                createdAt: new Date().toISOString()
+            };
+            allPosts.unshift(newPost);
+            savePostsToStorage();
+            return newPost;
+        }
+
+        function updatePost(postId, gameName, status, rating, observation) {
+            const postIndex = allPosts.findIndex(p => p.id === postId);
+            if (postIndex === -1) return false;
+            if (allPosts[postIndex].userId !== currentUser.id) return false;
+
+            allPosts[postIndex].gameName = gameName.trim();
+            allPosts[postIndex].status = status;
+            allPosts[postIndex].rating = parseInt(rating);
+            allPosts[postIndex].observation = observation.trim();
+            allPosts[postIndex].updatedAt = new Date().toISOString();
+            savePostsToStorage();
+            return true;
+        }
+
+        function deletePost(postId) {
+            const postIndex = allPosts.findIndex(p => p.id === postId);
+            if (postIndex === -1) return false;
+            if (allPosts[postIndex].userId !== currentUser.id) return false;
+
+            allPosts.splice(postIndex, 1);
+            savePostsToStorage();
+            return true;
+        }
+
+        function getUserPosts(userId) {
+            return allPosts.filter(p => p.userId === userId);
+        }
+
+        function getUserById(userId) {
+            return allUsers.find(u => u.id === userId) || null;
+        }
+
+        function getPostById(postId) {
+            return allPosts.find(p => p.id === postId) || null;
+        }
+
+        // ==================== RENDERIZAÇÃO ====================
+        function renderFeed() {
+            const container = document.getElementById('feedPostsContainer');
+            if (allPosts.length === 0) {
+                container.innerHTML = `
+                            <div class="empty-state">
+                                <i class="bi bi-controller"></i>
+                                <h4>Nenhuma publicação ainda</h4>
+                                <p>Seja o primeiro a publicar sua avaliação de um jogo! Clique em "Publicar Jogo" para começar.</p>
+                            </div>`;
+                return;
+            }
+            const postsHtml = allPosts.map(post => buildPostCardHtml(post, false)).join('');
+            container.innerHTML = `<div class="row g-3">${postsHtml}</div>`;
+
+            // Adicionar event listeners aos cards renderizados
+            attachPostCardListeners();
+        }
+
+        function renderMyProfile() {
+            if (!currentUser) return;
+            const myPosts = getUserPosts(currentUser.id);
+            const stats = calculateUserStats(currentUser.id);
+
+            // Header
+            const headerContainer = document.getElementById('myProfileHeader');
+            headerContainer.innerHTML = buildProfileHeaderHtml(currentUser, stats, true);
+
+            // Posts
+            const postsContainer = document.getElementById('myProfilePostsContainer');
+            if (myPosts.length === 0) {
+                postsContainer.innerHTML = `
+                            <div class="empty-state">
+                                <i class="bi bi-journal-x"></i>
+                                <h4>Você ainda não publicou nada</h4>
+                                <p>Compartilhe sua primeira avaliação de jogo!</p>
+                            </div>`;
+            } else {
+                const postsHtml = myPosts.map(post => buildPostCardHtml(post, true)).join('');
+                postsContainer.innerHTML = `<div class="row g-3">${postsHtml}</div>`;
+                attachPostCardListeners();
+            }
+        }
+
+        function renderPublicProfile() {
+            if (!publicProfileUserId) {
+                navigateTo('feed');
+                return;
+            }
+            const user = getUserById(publicProfileUserId);
+            if (!user) {
+                showToast('Usuário não encontrado.', 'danger');
+                navigateTo('feed');
+                return;
+            }
+
+            // Se for o próprio usuário, redirecionar para "Meu Perfil"
+            if (currentUser && user.id === currentUser.id) {
+                navigateTo('myProfile');
+                return;
+            }
+
+            const userPosts = getUserPosts(user.id);
+            const stats = calculateUserStats(user.id);
+
+            // Header
+            const headerContainer = document.getElementById('publicProfileHeader');
+            headerContainer.innerHTML = buildProfileHeaderHtml(user, stats, false);
+
+            // Posts
+            const postsContainer = document.getElementById('publicProfilePostsContainer');
+            if (userPosts.length === 0) {
+                postsContainer.innerHTML = `
+                            <div class="empty-state">
+                                <i class="bi bi-journal-x"></i>
+                                <h4>Nenhuma publicação</h4>
+                                <p>Este usuário ainda não publicou avaliações.</p>
+                            </div>`;
+            } else {
+                const postsHtml = userPosts.map(post => buildPostCardHtml(post, false)).join('');
+                postsContainer.innerHTML = `<div class="row g-3">${postsHtml}</div>`;
+                attachPostCardListeners();
+            }
+        }
+
+        function buildProfileHeaderHtml(user, stats, isOwnProfile) {
+            const avatarHtml = generateAvatarHtml(user.username, 'avatar-lg');
+            const totalPosts = stats.playing + stats.completed + stats.dropped;
+
+            return `
+                        <div class="profile-header">
+                            <div class="d-flex justify-content-center mb-3">
+                                ${avatarHtml}
+                            </div>
+                            <h3 class="fw-bold mb-1" style="color:#f1f5f9;">${escapeHtml(user.username)}</h3>
+                            <p class="text-muted mb-0">
+                                ${isOwnProfile ? 'Este é o seu perfil' : 'Perfil público'}
+                                ${isOwnProfile ? ' ✏️' : ' 👀'}
+                            </p>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <div class="stat-number">${totalPosts}</div>
+                                    <div class="stat-label">Total</div>
+                                </div>
+                                <div class="stat-item stat-playing">
+                                    <div class="stat-number">${stats.playing}</div>
+                                    <div class="stat-label">Jogando</div>
+                                </div>
+                                <div class="stat-item stat-completed">
+                                    <div class="stat-number">${stats.completed}</div>
+                                    <div class="stat-label">Zerados</div>
+                                </div>
+                                <div class="stat-item stat-dropped">
+                                    <div class="stat-number">${stats.dropped}</div>
+                                    <div class="stat-label">Parados</div>
+                                </div>
+                            </div>
+                        </div>`;
+        }
+
+        function buildPostCardHtml(post, showActions) {
+            const statusInfo = STATUS_MAP[post.status] || STATUS_MAP['playing'];
+            const ratingStarsHtml = buildStarsDisplay(post.rating);
+            const timeAgo = getTimeAgo(post.createdAt);
+            const observation = post.observation ?
+                `<div class="observation-text">"${escapeHtml(post.observation)}"</div>` :
+                '';
+            const isOwnPost = currentUser && post.userId === currentUser.id;
+
+            // Determinar ação ao clicar no username
+            const userClickAction = isOwnPost ?
+                `onclick="window._navigateToMyProfile()"` :
+                `onclick="window._viewPublicProfile('${post.userId}')"`;
+
+            const avatarHtml = generateAvatarHtml(post.username, '');
+
+            const actionsHtml = (showActions && isOwnPost) ? `
+                        <div class="d-flex gap-1 ms-auto">
+                            <button class="btn-action-icon btn-edit" onclick="window._editPost('${post.id}')" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn-action-icon btn-delete" onclick="window._confirmDeletePost('${post.id}')" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>` : '';
+
+            return `
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="post-card ${statusInfo.cardClass} h-100 d-flex flex-column">
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <span ${userClickAction} style="cursor:pointer;" title="Ver perfil de ${escapeHtml(post.username)}">
+                                        ${avatarHtml}
+                                    </span>
+                                    <div class="flex-grow-1 min-width-0">
+                                        <span ${userClickAction} class="username-link d-block text-truncate">
+                                            ${escapeHtml(post.username)}
+                                        </span>
+                                        <span class="time-ago">
+                                            <i class="bi bi-clock"></i> ${timeAgo}
+                                        </span>
+                                    </div>
+                                    ${actionsHtml}
+                                </div>
+                                <h5 class="game-title mb-2">
+                                    <i class="bi bi-controller me-2" style="color:#8b5cf6; font-size:0.9rem;"></i>
+                                    ${escapeHtml(post.gameName)}
+                                </h5>
+                                <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                                    <span class="badge-status ${statusInfo.badgeClass}">
+                                        <i class="bi ${statusInfo.icon}"></i> ${statusInfo.label}
+                                    </span>
+                                    <span class="stars-display">${ratingStarsHtml}</span>
+                                </div>
+                                ${observation}
+                            </div>
+                        </div>`;
+        }
+
+        function buildStarsDisplay(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    html += '<i class="bi bi-star-fill"></i>';
+                } else {
+                    html += '<i class="bi bi-star"></i>';
+                }
+            }
+            return html;
+        }
+
+        function generateAvatarHtml(username, extraClasses = '') {
+            const initial = username.charAt(0).toUpperCase();
+            const bgColor = stringToColor(username);
+            return `<span class="avatar-circle ${extraClasses}" style="background:${bgColor};" title="${escapeHtml(username)}">${initial}</span>`;
+        }
+
+        function attachPostCardListeners() {
+            // Os listeners são tratados via funções globais (window._editPost, etc.)
+            // e data attributes nos elementos clicáveis
+        }
+
+        // ==================== FUNÇÕES GLOBAIS (para onclick inline) ====================
+        window._navigateToMyProfile = function() {
+            navigateTo('myProfile');
+        };
+
+        window._viewPublicProfile = function(userId) {
+            publicProfileUserId = userId;
+            navigateTo('publicProfile');
+        };
+
+        window._editPost = function(postId) {
+            openEditPostModal(postId);
+        };
+
+        window._confirmDeletePost = function(postId) {
+            openDeleteConfirmModal(postId);
+        };
+
+        // ==================== MODAIS ====================
+        function openNewPostModal() {
+            document.getElementById('newPostForm').reset();
+            document.getElementById('newRatingValue').value = '0';
+            document.getElementById('newRatingText').style.display = 'block';
+            document.querySelector('#newPostForm .invalid-feedback-rating').style.display = 'none';
+            resetStars('newRatingStars');
+            clearFormValidation('newPostForm');
+            newPostModalInstance.show();
+        }
+
+        function openEditPostModal(postId) {
+            const post = getPostById(postId);
+            if (!post || post.userId !== currentUser.id) {
+                showToast('Publicação não encontrada.', 'danger');
+                return;
+            }
+            document.getElementById('editPostId').value = post.id;
+            document.getElementById('editGameName').value = post.gameName;
+            document.getElementById('editStatus').value = post.status;
+            document.getElementById('editObservation').value = post.observation || '';
+            document.getElementById('editRatingValue').value = post.rating;
+            document.querySelector('#editPostForm .invalid-feedback-rating').style.display = 'none';
+            setStars('editRatingStars', post.rating);
+            clearFormValidation('editPostForm');
+            editPostModalInstance.show();
+        }
+
+        function openDeleteConfirmModal(postId) {
+            const post = getPostById(postId);
+            if (!post || post.userId !== currentUser.id) {
+                showToast('Publicação não encontrada.', 'danger');
+                return;
+            }
+            postIdToDelete = postId;
+            document.getElementById('deleteGameName').textContent = `"${post.gameName}"`;
+            deleteConfirmModalInstance.show();
+        }
+
+        function confirmDeletePost() {
+            if (!postIdToDelete) return;
+            const success = deletePost(postIdToDelete);
+            if (success) {
+                showToast('Publicação excluída com sucesso!', 'success');
+                deleteConfirmModalInstance.hide();
+                postIdToDelete = null;
+                // Recarregar a view atual
+                refreshCurrentView();
+            } else {
+                showToast('Erro ao excluir publicação.', 'danger');
+            }
+        }
+
+        function refreshCurrentView() {
+            const feedVisible = document.getElementById('feedView').style.display !== 'none';
+            const myProfileVisible = document.getElementById('myProfileView').style.display !== 'none';
+            const publicProfileVisible = document.getElementById('publicProfileView').style.display !== 'none';
+
+            if (feedVisible) renderFeed();
+            else if (myProfileVisible) renderMyProfile();
+            else if (publicProfileVisible) renderPublicProfile();
+        }
+
+        // ==================== SISTEMA DE ESTRELAS ====================
+        function setupStarsInteraction(containerId, hiddenInputId, ratingTextId) {
+            const container = document.getElementById(containerId);
+            const starItems = container.querySelectorAll('.star-item');
+
+            starItems.forEach(star => {
+                star.addEventListener('mouseenter', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    highlightStars(containerId, value);
+                });
+
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    document.getElementById(hiddenInputId).value = value;
+                    setStars(containerId, value);
+                    // Esconder texto de "clique nas estrelas"
+                    if (ratingTextId) {
+                        document.getElementById(ratingTextId).style.display = 'none';
+                    }
+                    // Esconder mensagem de erro
+                    const errorEl = container.parentElement.querySelector(
+                    '.invalid-feedback-rating');
+                    if (errorEl) errorEl.style.display = 'none';
+                });
+            });
+
+            container.addEventListener('mouseleave', function() {
+                const currentValue = parseInt(document.getElementById(hiddenInputId).value) || 0;
+                setStars(containerId, currentValue);
+            });
+
+            // Inicializar
+            setStars(containerId, 0);
+        }
+
+        function highlightStars(containerId, value) {
+            const container = document.getElementById(containerId);
+            const stars = container.querySelectorAll('.star-item');
+            stars.forEach(s => {
+                const starValue = parseInt(s.getAttribute('data-value'));
+                if (starValue <= value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        }
+
+        function setStars(containerId, value) {
+            const container = document.getElementById(containerId);
+            const stars = container.querySelectorAll('.star-item');
+            stars.forEach(s => {
+                const starValue = parseInt(s.getAttribute('data-value'));
+                if (starValue <= value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        }
+
+        function resetStars(containerId) {
+            setStars(containerId, 0);
+        }
+
+        // ==================== UTILITÁRIOS ====================
+        function generateId() {
+            return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 9);
+        }
+
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const hue = Math.abs(hash) % 360;
+            const saturation = 55 + (Math.abs(hash) % 25);
+            const lightness = 40 + (Math.abs(hash) % 20);
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getTimeAgo(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffMs = now - date;
+            const diffSeconds = Math.floor(diffMs / 1000);
+            const diffMinutes = Math.floor(diffSeconds / 60);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            const diffWeeks = Math.floor(diffDays / 7);
+            const diffMonths = Math.floor(diffDays / 30);
+
+            if (diffSeconds < 60) return 'Agora mesmo';
+            if (diffMinutes < 60) return `Há ${diffMinutes} min`;
+            if (diffHours < 24) return `Há ${diffHours}h`;
+            if (diffDays < 7) return `Há ${diffDays}d`;
+            if (diffWeeks < 4) return `Há ${diffWeeks} sem`;
+            if (diffMonths < 12) return `Há ${diffMonths} mês${diffMonths > 1 ? 'es' : ''}`;
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function calculateUserStats(userId) {
+            const userPosts = getUserPosts(userId);
+            return {
+                playing: userPosts.filter(p => p.status === 'playing').length,
+                completed: userPosts.filter(p => p.status === 'completed').length,
+                dropped: userPosts.filter(p => p.status === 'dropped').length,
+                total: userPosts.length
+            };
+        }
+
+        function updateNavbarUserInfo() {
+            if (!currentUser) return;
+            const avatarEl = document.getElementById('currentUserAvatar');
+            const nameEl = document.getElementById('currentUserName');
+            const initial = currentUser.username.charAt(0).toUpperCase();
+            const bgColor = stringToColor(currentUser.username);
+            avatarEl.style.background = bgColor;
+            avatarEl.textContent = initial;
+            avatarEl.title = currentUser.username;
+            nameEl.textContent = currentUser.username;
+        }
+
+        function clearAuthForms() {
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+            clearFormValidation('loginForm');
+            clearFormValidation('registerForm');
+        }
+
+        function clearAuthErrors() {
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('registerError').style.display = 'none';
+        }
+
+        function showAuthError(formType, message) {
+            const errorDiv = document.getElementById(formType === 'login' ? 'loginError' : 'registerError');
+            errorDiv.querySelector('.alert').textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function clearFormValidation(formId) {
+            const form = document.getElementById(formId);
+            form.classList.remove('was-validated');
+            const errorRating = form.querySelector('.invalid-feedback-rating');
+            if (errorRating) errorRating.style.display = 'none';
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const icons = {
+                success: 'bi-check-circle-fill',
+                danger: 'bi-exclamation-circle-fill',
+                info: 'bi-info-circle-fill',
+                warning: 'bi-exclamation-triangle-fill'
+            };
+            const icon = icons[type] || icons.info;
+            const bgClass = type === 'success' ? 'bg-success' :
+                type === 'danger' ? 'bg-danger' :
+                type === 'warning' ? 'bg-warning text-dark' : 'bg-info text-dark';
+
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center ${bgClass} border-0 mb-2`;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.innerHTML = `
+                        <div class="d-flex">
+                            <div class="toast-body d-flex align-items-center gap-2 fw-semibold">
+                                <i class="bi ${icon}"></i> ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                        </div>`;
+            container.appendChild(toastEl);
+
+            const bsToast = new bootstrap.Toast(toastEl, { delay: 3500 });
+            bsToast.show();
+
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            // Toggle entre login e cadastro
+            document.getElementById('showRegisterBtn').addEventListener('click', () => {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+                clearAuthErrors();
+                clearFormValidation('registerForm');
+                document.getElementById('registerForm').reset();
+                document.getElementById('registerError').style.display = 'none';
+            });
+
+            document.getElementById('showLoginBtn').addEventListener('click', () => {
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+                clearAuthErrors();
+                clearFormValidation('loginForm');
+                document.getElementById('loginForm').reset();
+                document.getElementById('loginError').style.display = 'none';
+            });
+
+            // Formulário de Login
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                document.getElementById('loginError').style.display = 'none';
+                this.classList.add('was-validated');
+
+                if (!this.checkValidity()) return;
+
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+
+                const success = loginUser(username, password);
+                if (success) {
+                    showToast('Login realizado com sucesso! 🎮', 'success');
+                    showAppSection();
+                    updateNavbarUserInfo();
+                    navigateTo('feed');
+                }
+            });
+
+            // Formulário de Cadastro
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                document.getElementById('registerError').style.display = 'none';
+                this.classList.add('was-validated');
+
+                if (!this.checkValidity()) return;
+
+                const username = document.getElementById('registerUsername').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+                if (password !== confirmPassword) {
+                    document.getElementById('registerConfirmPassword').setCustomValidity(
+                    'As senhas não coincidem.');
+                    this.classList.add('was-validated');
+                    return;
+                } else {
+                    document.getElementById('registerConfirmPassword').setCustomValidity('');
+                }
+
+                const success = registerUser(username, password);
+                if (success) {
+                    showToast('Conta criada com sucesso! Faça login para continuar. 🎉', 'success');
+                    document.getElementById('registerForm').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                    clearAuthForms();
+                    clearAuthErrors();
+                    // Preencher username no login
+                    document.getElementById('loginUsername').value = username;
+                }
+            });
+
+            // Validação de confirmação de senha em tempo real
+            document.getElementById('registerConfirmPassword').addEventListener('input', function() {
+                const password = document.getElementById('registerPassword').value;
+                if (this.value !== password) {
+                    this.setCustomValidity('As senhas não coincidem.');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+            document.getElementById('registerPassword').addEventListener('input', function() {
+                const confirmEl = document.getElementById('registerConfirmPassword');
+                if (confirmEl.value && confirmEl.value !== this.value) {
+                    confirmEl.setCustomValidity('As senhas não coincidem.');
+                } else if (confirmEl.value && confirmEl.value === this.value) {
+                    confirmEl.setCustomValidity('');
+                }
+            });
+
+            // Logout
+            document.getElementById('btnLogout').addEventListener('click', logoutUser);
+
+            // Navegação
+            document.getElementById('navFeed').addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateTo('feed');
+            });
+            document.getElementById('navMyProfile').addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateTo('myProfile');
+            });
+            document.getElementById('brandHome').addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateTo('feed');
+            });
+
+            // Botão voltar do perfil público
+            document.getElementById('btnBackToFeed').addEventListener('click', function() {
+                navigateTo('feed');
+            });
+
+            // Nova publicação (desktop)
+            document.getElementById('btnNewPostDesktop').addEventListener('click', openNewPostModal);
+            // Nova publicação (mobile FAB)
+            document.getElementById('fabNewPost').addEventListener('click', openNewPostModal);
+
+            // Formulário de nova publicação
+            document.getElementById('newPostForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                this.classList.add('was-validated');
+
+                const gameName = document.getElementById('newGameName').value;
+                const status = document.getElementById('newStatus').value;
+                const rating = parseInt(document.getElementById('newRatingValue').value);
+                const observation = document.getElementById('newObservation').value;
+
+                let hasError = false;
+                if (!gameName || !status) {
+                    hasError = true;
+                }
+                if (!rating || rating < 1 || rating > 5) {
+                    document.querySelector('#newPostForm .invalid-feedback-rating').style.display =
+                        'block';
+                    hasError = true;
+                } else {
+                    document.querySelector('#newPostForm .invalid-feedback-rating').style.display = 'none';
+                }
+
+                if (hasError || !this.checkValidity()) return;
+
+                createPost(gameName, status, rating, observation);
+                showToast('Publicação criada com sucesso! 🎮✨', 'success');
+                newPostModalInstance.hide();
+                document.getElementById('newPostForm').reset();
+                document.getElementById('newRatingValue').value = '0';
+                document.getElementById('newRatingText').style.display = 'block';
+                resetStars('newRatingStars');
+                clearFormValidation('newPostForm');
+                refreshCurrentView();
+            });
+
+            // Fechar modal de nova publicação - resetar
+            document.getElementById('newPostModal').addEventListener('hidden.bs.modal', function() {
+                document.getElementById('newPostForm').reset();
+                document.getElementById('newRatingValue').value = '0';
+                document.getElementById('newRatingText').style.display = 'block';
+                resetStars('newRatingStars');
+                clearFormValidation('newPostForm');
+                document.querySelector('#newPostForm .invalid-feedback-rating').style.display = 'none';
+            });
+
+            // Formulário de edição
+            document.getElementById('editPostForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                this.classList.add('was-validated');
+
+                const postId = document.getElementById('editPostId').value;
+                const gameName = document.getElementById('editGameName').value;
+                const status = document.getElementById('editStatus').value;
+                const rating = parseInt(document.getElementById('editRatingValue').value);
+                const observation = document.getElementById('editObservation').value;
+
+                let hasError = false;
+                if (!rating || rating < 1 || rating > 5) {
+                    document.querySelector('#editPostForm .invalid-feedback-rating').style.display =
+                        'block';
+                    hasError = true;
+                } else {
+                    document.querySelector('#editPostForm .invalid-feedback-rating').style.display = 'none';
+                }
+
+                if (hasError || !this.checkValidity()) return;
+
+                const success = updatePost(postId, gameName, status, rating, observation);
+                if (success) {
+                    showToast('Publicação atualizada! ✅', 'success');
+                    editPostModalInstance.hide();
+                    refreshCurrentView();
+                } else {
+                    showToast('Erro ao atualizar publicação.', 'danger');
+                }
+            });
+
+            // Confirmar exclusão
+            document.getElementById('btnConfirmDelete').addEventListener('click', confirmDeletePost);
+
+            // Setup estrelas
+            setupStarsInteraction('newRatingStars', 'newRatingValue', 'newRatingText');
+            setupStarsInteraction('editRatingStars', 'editRatingValue', null);
+
+            // Fechar dropdown da navbar ao clicar em links (mobile)
+            document.querySelectorAll('#navbarNav .nav-link-custom').forEach(link => {
+                link.addEventListener('click', () => {
+                    const navbarCollapse = document.getElementById('navbarNav');
+                    if (navbarCollapse.classList.contains('show')) {
+                        const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                        if (bsCollapse) bsCollapse.hide();
+                    }
+                });
+            });
+        }
+
+        // ==================== INICIAR ====================
+        init();
+
+        // Verificar periodicamente se há mudanças no storage (para sincronização entre abas)
+        window.addEventListener('storage', function(e) {
+            if (e.key === STORAGE_KEYS.posts || e.key === STORAGE_KEYS.users ||
+                e.key === STORAGE_KEYS.currentUser) {
+                loadDataFromStorage();
+                if (currentUser) {
+                    updateNavbarUserInfo();
+                    refreshCurrentView();
+                } else {
+                    showAuthSection();
+                }
+            }
+        });
+
+        console.log('🎮 GameVault - Rede Social de Games iniciada!');
+        console.log('📦 Dados persistidos via LocalStorage');
+        console.log('👤 Usuários cadastrados:', allUsers.length);
+        console.log('📝 Publicações:', allPosts.length);
+    })();
+</script>
+</body>
+</html>
